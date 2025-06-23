@@ -1,6 +1,6 @@
 from http.cookiejar import CookieJar, Cookie
 
-from ..cffi_loader import addCookiesToSession, getCookiesFromSession
+from ...cffi_loader import addCookiesToSession, getCookiesFromSession
 
 
 def add_cookies_to_session():

@@ -1,4 +1,4 @@
-from ..cffi_loader import freeMemory
+from ...cffi_loader import freeMemory
 
 
 def free_memory(id: str) -> None:

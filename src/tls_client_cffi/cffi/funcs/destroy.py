@@ -1,7 +1,7 @@
 import json
 
-from ..cffi_loader import destroySession, destroyAll
-from .objects.go import DestroySessionObject
+from ...cffi_loader import destroySession, destroyAll
+from ..objects.go import DestroySessionObject
 
 
 def destroy_session(session_id: str) -> DestroySessionObject:

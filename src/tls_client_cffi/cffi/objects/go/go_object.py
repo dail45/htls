@@ -2,7 +2,7 @@ import json
 
 import humps
 
-from ... import free_memory
+from .... import cffi
 
 
 class GoObject:
@@ -13,7 +13,7 @@ class GoObject:
 
     def release(self):
         if self._memory_allocated:
-            free_memory(self.id)
+            cffi.free_memory(self.id)
             self._memory_allocated = False
 
     def __del__(self):
