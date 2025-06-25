@@ -211,8 +211,6 @@ class Session:
             "request_url": prep.url
         })
 
-        # TODO merge cookies from session and request
-
         tls_request = TLSRequest(**params)
         tls_response = do_tls_request(tls_request)
         rsp = Response()
@@ -242,8 +240,14 @@ class Session:
         return rsp
 
     def prepare_request(self, request: Request) -> PreparedRequest:
+        original_cookies = request.cookies
+        merged_cookies = merge_cookies(
+            merge_cookies(CookieJar(), self.cookies), original_cookies
+        )
+        request.cookies = merged_cookies
         prep = PreparedRequest()
         prep.prepare_request(request)
+        request.cookies = original_cookies
         return prep
 
     def request(
