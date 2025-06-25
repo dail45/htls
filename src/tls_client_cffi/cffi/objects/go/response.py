@@ -20,13 +20,13 @@ class Response(GoObject):
     def __init__(
             self,
             id: str,
-            session_id: str,
-            status: int,
-            target: str,
-            body: str,
-            headers: dict[str, str],
-            cookies: dict[str, str],
-            used_protocol: str
+            session_id: str = "",
+            status: int = 0,
+            target: str = "",
+            body: str = "",
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            used_protocol: str = ""
     ):
         super().__init__(id)
         self.session_id = session_id

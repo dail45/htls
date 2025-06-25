@@ -1,7 +1,13 @@
+import base64
+import time
+import uuid
+from datetime import timedelta
 from typing import Any
 
 from tls_client_cffi import CustomTLSClient
-from tls_client_cffi.cffi.objects.request import TransportOptions
+from tls_client_cffi.cffi.objects.request import TransportOptions, Request as TLSRequest
+from tls_client_cffi.cffi.funcs import request as do_tls_request
+from tls_client_cffi.client import Response
 from tls_client_cffi.client.prepared_request import PreparedRequest
 from tls_client_cffi.client.request import Request
 
@@ -35,17 +41,35 @@ class Session:
         self.disable_ipv6 = disable_ipv6
         self.disable_ipv4 = disable_ipv4
         self.local_address = local_address
-        self.session_id = session_id
+        self.session_id = str(session_id) or str(uuid.uuid4())
         self.tls_client_identifier = tls_client_identifier
         self.with_debug = with_debug
         self.with_default_cookie_jar = with_default_cookie_jar
         self.without_cookie_jar = without_cookie_jar
         self.with_random_tls_extension_order = with_random_tls_extension_order
 
-    def send(self, request: Request):
+    def send(self, prep: PreparedRequest):
+        params = {}
+        params.update(self.__dict__)
+        params.update(prep.tls_params)
+        params.update({
+            "headers": prep.headers,
+            "request_body": base64.b64encode(prep.body).decode("utf-8") if prep.body else None,
+            "request_method": prep.method,
+            "request_url": prep.url
+        })
+
+        tls_request = TLSRequest(**params)
+        tls_response = do_tls_request(tls_request)
+        rsp = Response()
+        rsp.build_response(prep, tls_response)
+
+        return rsp
+
+    def prepare_request(self, request: Request) -> PreparedRequest:
         prep = PreparedRequest()
         prep.prepare_request(request)
-
+        return prep
 
     def request(
             self,
@@ -79,4 +103,13 @@ class Session:
                           stream_output_block_size, stream_output_eof_symbol, stream_output_path)
         if return_request:
             return request
-        return self.send(request)
+
+        prep = self.prepare_request(request)
+
+        start = time.time()
+        rsp = self.send(prep)
+        elapsed = time.time() - start
+        rsp.elapsed = timedelta(seconds=elapsed)
+
+        return rsp
+

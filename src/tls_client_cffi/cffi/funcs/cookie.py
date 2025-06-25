@@ -4,7 +4,7 @@ from ...cffi_loader import addCookiesToSession, getCookiesFromSession
 
 
 def add_cookies_to_session():
-    pass
+    raise NotImplementedError
 
 def get_cookies_from_session():
-    pass
+    raise NotImplementedError
