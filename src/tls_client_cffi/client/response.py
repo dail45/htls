@@ -5,7 +5,7 @@ from json import loads
 
 from tls_client_cffi.cffi.objects import Response as TLSResponse
 from tls_client_cffi.client import PreparedRequest, CaseInsensitiveDict, extract_cookies_to_jar, codes, HTTPError, \
-    chardet, guess_json_utf
+    chardet, guess_json_utf, get_encoding_from_headers
 
 
 class Response:
@@ -19,13 +19,14 @@ class Response:
         self.reason = None
         self.cookies = None
         self.elapsed = datetime.timedelta(0)
-        self.request = None
+        self.request: PreparedRequest | None = None
 
-        self.raw_response = None
+        self.raw: TLSResponse | None = None
         self._exception = None
 
     def build_response(self, request: PreparedRequest, response: TLSResponse):
-        self.raw_response = response
+        self.request = request
+        self.raw = response
         self._exception = response._exception
 
         if self._exception:
@@ -38,8 +39,11 @@ class Response:
         for header_name, header_values in response.headers.items():
             headers.append((header_name, ", ".join(header_values)))
         self.headers = CaseInsensitiveDict(headers)
+        self.encoding = get_encoding_from_headers(self.headers)
+
         self.cookies = CookieJar()
-        extract_cookies_to_jar(self.cookies, request, response.headers or {})
+        extract_cookies_to_jar(self.cookies, request, response.headers)
+
         self._content = base64.b64decode(response.body.split(",")[1]) if response.body else None
 
     def __repr__(self):

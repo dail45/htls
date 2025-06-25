@@ -2,12 +2,14 @@ import base64
 import time
 import uuid
 from datetime import timedelta
+from http.cookiejar import CookieJar
 from typing import Any
+from urllib.parse import urlparse, urljoin
 
 from tls_client_cffi import CustomTLSClient
 from tls_client_cffi.cffi.objects.request import TransportOptions, Request as TLSRequest
 from tls_client_cffi.cffi.funcs import request as do_tls_request
-from tls_client_cffi.client import Response
+from tls_client_cffi.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies
 from tls_client_cffi.client.prepared_request import PreparedRequest
 from tls_client_cffi.client.request import Request
 
@@ -30,7 +32,9 @@ class Session:
             with_debug: bool = False,
             with_default_cookie_jar: bool = False,
             without_cookie_jar: bool = False,
-            with_random_tls_extension_order: bool = False
+            with_random_tls_extension_order: bool = False,
+
+            max_redirects: int = 30
     ):
         self.catch_panics = catch_panics
         self.certificate_pinning_hosts = certificate_pinning_hosts
@@ -48,9 +52,157 @@ class Session:
         self.without_cookie_jar = without_cookie_jar
         self.with_random_tls_extension_order = with_random_tls_extension_order
 
+        self.cookies = CookieJar()
+        self.max_redirects = max_redirects
+
+    def rebuild_method(self, prepared_request, response):
+        """
+        this method was copied from requests library
+        When being redirected we may want to change the method of the request
+        based on certain specs or browser behavior.
+        """
+        method = prepared_request.method
+
+        # https://tools.ietf.org/html/rfc7231#section-6.4.4
+        if response.status_code == 303 and method != "HEAD":
+            method = "GET"
+
+        # Do what the browsers do, despite standards...
+        # First, turn 302s into GETs.
+        if response.status_code == 302 and method != "HEAD":
+            method = "GET"
+
+        # Second, if a POST is responded to with a 301, turn it into a GET.
+        # This bizarre behaviour is explained in Issue 1704.
+        if response.status_code == 301 and method == "POST":
+            method = "GET"
+
+        prepared_request.method = method
+
+    def get_redirect_target(self, resp: Response):
+        """
+        this method was copied from requests library
+        Receives a Response. Returns a redirect URI or ``None``
+        """
+        # Due to the nature of how requests processes redirects this method will
+        # be called at least once upon the original response and at least twice
+        # on each subsequent redirect response (if any).
+        # If a custom mixin is used to handle this logic, it may be advantageous
+        # to cache the redirect location onto the response object as a private
+        # attribute.
+        if resp.is_redirect:
+            location = resp.headers["location"]
+            # Currently the underlying http module on py3 decode headers
+            # in latin1, but empirical evidence suggests that latin1 is very
+            # rarely used with non-ASCII characters in HTTP headers.
+            # It is more likely to get UTF8 header rather than latin1.
+            # This causes incorrect handling of UTF8 encoded location headers.
+            # To solve this, we re-encode the location in latin1.
+            location = location.encode("latin1")
+            return str(location, "utf8")
+        return None
+
+    def resolve_redirects(
+            self,
+            resp: Response,
+            req: PreparedRequest,
+            yield_requests: bool = False
+    ):
+        """
+        this method was partially copied from requests library
+        Receives a Response. Returns a generator of Responses or Requests.
+        """
+        history = []  # keep track of history
+
+        url = self.get_redirect_target(resp)
+        previous_fragment = urlparse(req.url).fragment
+        while url:
+            prepared_request = req.copy()
+
+            # Update history and keep track of redirects.
+            # resp.history must ignore the original request in this loop
+            history.append(resp)
+            resp.history = history[1:]
+            if resp._exception:
+                return
+
+            if len(resp.history) >= self.max_redirects:
+                raise TooManyRedirects(
+                    f"Exceeded {self.max_redirects} redirects."
+                )
+
+            # Handle redirection without scheme (see: RFC 1808 Section 4)
+            if url.startswith("//"):
+                parsed_rurl = urlparse(resp.url)
+                url = ":".join([str(parsed_rurl.scheme), url])
+
+            # Normalize url case and attach previous fragment if needed (RFC 7231 7.1.2)
+            parsed = urlparse(url)
+            if parsed.fragment == "" and previous_fragment:
+                parsed = parsed._replace(fragment=previous_fragment)
+            elif parsed.fragment:
+                previous_fragment = parsed.fragment
+            url = parsed.geturl()
+
+            # Facilitate relative 'location' headers, as allowed by RFC 7231.
+            # (e.g. '/path/to/resource' instead of 'http://domain.tld/path/to/resource')
+            # Compliant with RFC3986, we percent encode the url.
+            if not parsed.netloc:
+                url = urljoin(resp.url, requote_uri(url))
+            else:
+                url = requote_uri(url)
+
+            prepared_request.url = str(url)
+
+            self.rebuild_method(prepared_request, resp)
+
+            # https://github.com/psf/requests/issues/1084
+            if resp.status_code not in (
+                    307,  # temporary redirect,
+                    308   # permanent redirect,
+            ):
+                # https://github.com/psf/requests/issues/3490
+                purged_headers = ("Content-Length", "Content-Type", "Transfer-Encoding")
+                for header in purged_headers:
+                    prepared_request.headers.pop(header, None)
+                prepared_request.body = None
+
+            headers = prepared_request.headers
+            headers.pop("Cookie", None)
+
+            # Extract any cookies sent on the response to the cookiejar
+            # in the new request. Because we've mutated our copied prepared
+            # request, use the old one that we haven't yet touched.
+            extract_cookies_to_jar(prepared_request._cookies, req, resp.raw.headers)
+            merge_cookies(prepared_request._cookies, self.cookies)
+            prepared_request.prepare_cookies(prepared_request._cookies)
+
+            # TODO Rebuild auth and proxy information.
+            # proxies = self.rebuild_proxies(prepared_request, proxies)
+            # self.rebuild_auth(prepared_request, resp)
+
+            # Override the original request.
+            req = prepared_request
+
+            if yield_requests:
+                yield req
+            else:
+                resp = self.send(
+                    req
+                )
+
+                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw.headers)
+
+                # extract redirect url, if any, for the next loop
+                url = self.get_redirect_target(resp)
+                yield resp
+
     def send(self, prep: PreparedRequest):
         params = {}
-        params.update(self.__dict__)
+        session_params = dict(self.__dict__)
+        session_params.pop("cookies", None)
+        session_params.pop("max_redirects", None)
+        params.update(session_params)
         params.update(prep.tls_params)
         params.update({
             "headers": prep.headers,
@@ -59,10 +211,33 @@ class Session:
             "request_url": prep.url
         })
 
+        # TODO merge cookies from session and request
+
         tls_request = TLSRequest(**params)
         tls_response = do_tls_request(tls_request)
         rsp = Response()
         rsp.build_response(prep, tls_response)
+
+        if rsp._exception:
+            return rsp
+
+        if rsp.history:
+            resp: Response
+            for resp in rsp.history:
+                extract_cookies_to_jar(self.cookies, resp.request, resp.headers)
+
+        extract_cookies_to_jar(self.cookies, rsp.request, rsp.headers)
+
+        if prep.raw.allow_redirects:
+            gen = self.resolve_redirects(rsp, prep)
+            history = [resp for resp in gen]
+        else:
+            history = []
+
+        if history:
+            history.insert(0, rsp)
+            rsp = history.pop()
+            rsp.history = history
 
         return rsp
 

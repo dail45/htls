@@ -6,10 +6,10 @@ from json import dumps
 
 import idna
 
-from tls_client_cffi.client import CaseInsensitiveDict
+from tls_client_cffi.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict
 from tls_client_cffi.client.exceptions import MissingSchema, InvalidURL, InvalidJSONError
 from tls_client_cffi.client.request import Request
-from tls_client_cffi.client.utils import unquote_unreserved
+from tls_client_cffi.client.utils import _copy_cookie_jar
 
 
 class PreparedRequest:
@@ -19,9 +19,23 @@ class PreparedRequest:
         self.headers = None
         self.body = None
         self.tls_params = {}
-        self.raw_request = None
+        self.raw: Request | None = None
 
-        self._cookies = None
+        self._cookies: CookieJar | None = None
+
+    def __repr__(self):
+        return f"<PreparedRequest [{self.method}]>"
+
+    def copy(self):
+        p = PreparedRequest()
+        p.method = self.method
+        p.url = self.url
+        p.headers = self.headers.copy() if self.headers is not None else CaseInsensitiveDict()
+        p._cookies = _copy_cookie_jar(self._cookies)
+        p.body = self.body
+        p.raw = self.raw
+        p.tls_params = self.tls_params.copy() if self.tls_params is not None else {}
+        return p
 
     @staticmethod
     def _encode_params(data):
@@ -51,14 +65,14 @@ class PreparedRequest:
             return data
 
     def prepare_request(self, request: Request):
+        self.raw = request
+
         self.prepare_method(request.method)
         self.prepare_url(request.url, request.params)
         self.prepare_headers(request.headers)
         self.prepare_cookies(request.cookies)
         self.prepare_body(request.data, request.json)
         self.prepare_tls_params(request)
-
-        self.raw_request = request
 
     def prepare_method(self, method):
         # this method was partially copied from requests library
@@ -135,13 +149,7 @@ class PreparedRequest:
                 query = enc_params
 
         uri = urlunparse([scheme, netloc, path, None, query, fragment])
-        safe_with_percent = "!#$%&'()*+,/:;=?@[]~"
-        safe_without_percent = "!#$&'()*+,/:;=?@[]~"
-        try:
-            url = quote(unquote_unreserved(uri), safe=safe_with_percent)
-        except InvalidURL:
-            url = quote(uri, safe=safe_without_percent)
-        self.url = url
+        self.url = requote_uri(uri)
 
     def prepare_headers(self, headers):
         """
@@ -163,27 +171,19 @@ class PreparedRequest:
         if isinstance(cookies, CookieJar):
             self._cookies = cookies
         else:
-            self._cookies = CookieJar()
-            for k, v in cookies.items():
-                self._cookies.set_cookie(Cookie(
-                    version=0,
-                    name=k,
-                    value=v,
-                    port=None,
-                    port_specified=False,
-                    domain="",
-                    domain_specified=False,
-                    domain_initial_dot=False,
-                    path="/",
-                    path_specified=False,
-                    secure=False,
-                    expires=None,
-                    discard=True,
-                    comment=None,
-                    comment_url=None,
-                    rest={"HttpOnly": None},
-                    rfc2109=False
-                ))
+            self._cookies = cookiejar_from_dict(cookies)
+
+        cookie: Cookie
+        cookies = [{
+            "domain": cookie.domain,
+            "expires": int(cookie.expires or 0),
+            "maxAge": 0,
+            "name": cookie.name,
+            "path": cookie.path,
+            "value": cookie.value
+        } for cookie in self._cookies]
+
+        self.tls_params["request_cookies"] = cookies
 
     def prepare_body(self, data, json):
         # this method was partially copied from requests library
@@ -227,18 +227,8 @@ class PreparedRequest:
             self.headers["Content-Length"] = "0"
 
     def prepare_tls_params(self, request: Request):
-        cookie: Cookie
-        cookies = [{
-            "domain": int(cookie.domain or 0),
-            "expires": int(cookie.expires or 0),
-            "maxAge": 0,
-            "name": cookie.name,
-            "path": cookie.path,
-            "value": cookie.value
-        } for cookie in self._cookies]
-
         self.tls_params.update({
-            "follow_redirects": request.allow_redirects,
+            "follow_redirects": False,
             "force_http1": request.force_http1,
             "header_order": request.header_order,
             "insecure_skip_verify": request.verify,
@@ -246,7 +236,6 @@ class PreparedRequest:
             "is_byte_response": True,
             "is_rotating_proxy": False,
             "proxy_url": request.proxy_url,
-            "request_cookies": cookies,
             "request_host_override": request.request_host_override,
             "server_name_overwrite": request.server_name_overwrite,
             "stream_output_block_size": request.stream_output_block_size,

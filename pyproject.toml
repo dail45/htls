@@ -5,7 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "pyhumps>=0.2.2",
+    "idna>=3.10",
+    "pyhumps>=3.8.0",
 ]
 
 [build-system]

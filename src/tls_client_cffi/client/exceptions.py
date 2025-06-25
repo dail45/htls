@@ -13,3 +13,6 @@ class InvalidJSONError(TLSClientException, ValueError):
 
 class HTTPError(TLSClientException):
     pass
+
+class TooManyRedirects(TLSClientException):
+    pass

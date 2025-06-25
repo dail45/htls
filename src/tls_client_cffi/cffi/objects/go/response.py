@@ -33,8 +33,8 @@ class Response(GoObject):
         self.status = status
         self.target = target
         self.body = body
-        self.headers = headers
-        self.cookies = cookies
+        self.headers = headers or {}
+        self.cookies = cookies or {}
         self.used_protocol = used_protocol
 
         self._exception = GoException(self.body) if self.status == 0 else None

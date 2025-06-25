@@ -1,13 +1,15 @@
 import codecs
+import copy
 import importlib
-from http.client import HTTPResponse, HTTPMessage
+from http.client import HTTPMessage
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse, quote
+from http.cookiejar import CookieJar, Cookie
 
 from tls_client_cffi.client.exceptions import InvalidURL
+from tls_client_cffi.client import CaseInsensitiveDict
 
 if TYPE_CHECKING:
-    from http.cookiejar import CookieJar
     from tls_client_cffi.client import PreparedRequest
 
 
@@ -140,7 +142,7 @@ class MockResponse:
         self._headers.getheaders(name)
 
 
-def extract_cookies_to_jar(jar: "CookieJar", request: "PreparedRequest", headers: dict[str, list[str]]):
+def extract_cookies_to_jar(jar: "CookieJar", request: "PreparedRequest", headers: dict[str, list[str]] | CaseInsensitiveDict):
     msg = HTTPMessage()
     msg._headers = []
     for header_name, header_values in headers.items():
@@ -206,3 +208,185 @@ def guess_json_utf(data):
             return "utf-32-le"
         # Did not detect a valid UTF-32 ascii-range character
     return None
+
+
+def _parse_content_type_header(header):
+    """
+    this fuction was copied from requests library
+    Returns content type and parameters from given header
+
+    :param header: string
+    :return: tuple containing content type and dictionary of
+         parameters
+    """
+
+    tokens = header.split(";")
+    content_type, params = tokens[0].strip(), tokens[1:]
+    params_dict = {}
+    items_to_strip = "\"' "
+
+    for param in params:
+        param = param.strip()
+        if param:
+            key, value = param, True
+            index_of_equals = param.find("=")
+            if index_of_equals != -1:
+                key = param[:index_of_equals].strip(items_to_strip)
+                value = param[index_of_equals + 1 :].strip(items_to_strip)
+            params_dict[key.lower()] = value
+    return content_type, params_dict
+
+
+def get_encoding_from_headers(headers):
+    """
+    this function was copied from requests library
+    Returns encodings from given HTTP Header Dict.
+
+    :param headers: dictionary to extract encoding from.
+    :rtype: str
+    """
+
+    content_type = headers.get("content-type")
+
+    if not content_type:
+        return None
+
+    content_type, params = _parse_content_type_header(content_type)
+
+    if "charset" in params:
+        return params["charset"].strip("'\"")
+
+    if "text" in content_type:
+        return "ISO-8859-1"
+
+    if "application/json" in content_type:
+        # Assume UTF-8 based on RFC 4627: https://www.ietf.org/rfc/rfc4627.txt since the charset was unset
+        return "utf-8"
+
+
+def requote_uri(uri):
+    """
+    this function was copied from requests library
+    Re-quote the given URI.
+
+    This function passes the given URI through an unquote/quote cycle to
+    ensure that it is fully and consistently quoted.
+
+    :rtype: str
+    """
+    safe_with_percent = "!#$%&'()*+,/:;=?@[]~"
+    safe_without_percent = "!#$&'()*+,/:;=?@[]~"
+    try:
+        # Unquote only the unreserved characters
+        # Then quote only illegal characters (do not quote reserved,
+        # unreserved, or '%')
+        return quote(unquote_unreserved(uri), safe=safe_with_percent)
+    except InvalidURL:
+        # We couldn't unquote the given URI, so let's try quoting it, but
+        # there may be unquoted '%'s in the URI. We need to make sure they're
+        # properly quoted so they do not cause issues elsewhere.
+        return quote(uri, safe=safe_without_percent)
+
+
+def create_cookie(name, value, **kwargs):
+    """
+    this function was copied from requests library
+    Make a cookie from underspecified parameters.
+
+    By default, the pair of `name` and `value` will be set for the domain ''
+    and sent on every request (this is sometimes called a "supercookie").
+    """
+    result = {
+        "version": 0,
+        "name": name,
+        "value": value,
+        "port": None,
+        "domain": "",
+        "path": "/",
+        "secure": False,
+        "expires": None,
+        "discard": True,
+        "comment": None,
+        "comment_url": None,
+        "rest": {"HttpOnly": None},
+        "rfc2109": False,
+    }
+
+    badargs = set(kwargs) - set(result)
+    if badargs:
+        raise TypeError(
+            f"create_cookie() got unexpected keyword arguments: {list(badargs)}"
+        )
+
+    result.update(kwargs)
+    result["port_specified"] = bool(result["port"])
+    result["domain_specified"] = bool(result["domain"])
+    result["domain_initial_dot"] = result["domain"].startswith(".")
+    result["path_specified"] = bool(result["path"])
+
+    return Cookie(**result)
+
+
+def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
+    """
+    this function was copied from requests library
+    Returns a CookieJar from a key/value dictionary.
+
+    :param cookie_dict: Dict of key/values to insert into CookieJar.
+    :param cookiejar: (optional) A cookiejar to add the cookies to.
+    :param overwrite: (optional) If False, will not replace cookies
+        already in the jar with new ones.
+    :rtype: CookieJar
+    """
+    if cookiejar is None:
+        cookiejar = CookieJar()
+
+    if cookie_dict is not None:
+        names_from_jar = [cookie.name for cookie in cookiejar]
+        for name in cookie_dict:
+            if overwrite or (name not in names_from_jar):
+                cookiejar.set_cookie(create_cookie(name, cookie_dict[name]))
+
+    return cookiejar
+
+
+def merge_cookies(cookiejar, cookies):
+    """
+    this function was copied from requests library
+    Add cookies to cookiejar and returns a merged CookieJar.
+
+    :param cookiejar: CookieJar object to add the cookies to.
+    :param cookies: Dictionary or CookieJar object to be added.
+    :rtype: CookieJar
+    """
+    if not isinstance(cookiejar, CookieJar):
+        raise ValueError("You can only merge into CookieJar")
+
+    if isinstance(cookies, dict):
+        cookiejar = cookiejar_from_dict(cookies, cookiejar=cookiejar, overwrite=False)
+    elif isinstance(cookies, CookieJar):
+        try:
+            cookiejar.update(cookies)
+        except AttributeError:
+            for cookie_in_jar in cookies:
+                cookiejar.set_cookie(cookie_in_jar)
+
+    return cookiejar
+
+
+def _copy_cookie_jar(jar):
+    """
+    this function was copied from requests library
+    """
+    if jar is None:
+        return None
+
+    if hasattr(jar, "copy"):
+        # We're dealing with an instance of RequestsCookieJar
+        return jar.copy()
+    # We're dealing with a generic CookieJar instance
+    new_jar = copy.copy(jar)
+    new_jar.clear()
+    for cookie in jar:
+        new_jar.set_cookie(copy.copy(cookie))
+    return new_jar
