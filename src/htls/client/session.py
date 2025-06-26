@@ -6,13 +6,13 @@ from http.cookiejar import CookieJar
 from typing import Any, Callable
 from urllib.parse import urlparse, urljoin
 
-from tls_client_cffi import CustomTLSClient
-from tls_client_cffi.cffi.objects.request import TransportOptions, Request as TLSRequest
-from tls_client_cffi.cffi.funcs import request as do_tls_request
-from tls_client_cffi.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
+from htls import CustomTLSClient
+from htls.cffi.objects.request import TransportOptions, Request as TLSRequest
+from htls.cffi.funcs import request as do_tls_request
+from htls.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
     AuthBase, dispatch_hook
-from tls_client_cffi.client.prepared_request import PreparedRequest
-from tls_client_cffi.client.request import Request
+from htls.client.prepared_request import PreparedRequest
+from htls.client.request import Request
 
 
 class Session:

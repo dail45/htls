@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from tls_client_cffi.client import PreparedRequest
+    from htls.client import PreparedRequest
 
 
 class AuthBase:

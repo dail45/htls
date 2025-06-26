@@ -1,4 +1,4 @@
-from tls_client_cffi import TLSClientException
+from htls import TLSClientException
 
 
 class InvalidURL(TLSClientException, ValueError):

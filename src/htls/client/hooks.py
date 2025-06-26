@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Callable, TypeVar
 
 if TYPE_CHECKING:
-    from tls_client_cffi.client import Response
+    from htls.client import Response
 
 HOOKS = ["request", "response"]
 T = TypeVar("T")

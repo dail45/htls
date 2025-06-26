@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlparse, urlunparse, quote
 from http.cookiejar import CookieJar, Cookie
 
-from tls_client_cffi.client.exceptions import InvalidURL
-from tls_client_cffi.client import CaseInsensitiveDict
+from htls.client.exceptions import InvalidURL
+from htls.client import CaseInsensitiveDict
 
 if TYPE_CHECKING:
-    from tls_client_cffi.client import PreparedRequest
+    from htls.client import PreparedRequest
 
 
 def unquote_unreserved(uri):

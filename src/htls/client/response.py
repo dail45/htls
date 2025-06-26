@@ -3,8 +3,8 @@ import datetime
 from http.cookiejar import CookieJar
 from json import loads
 
-from tls_client_cffi.cffi.objects import Response as TLSResponse
-from tls_client_cffi.client import PreparedRequest, CaseInsensitiveDict, extract_cookies_to_jar, codes, HTTPError, \
+from htls.cffi.objects import Response as TLSResponse
+from htls.client import PreparedRequest, CaseInsensitiveDict, extract_cookies_to_jar, codes, HTTPError, \
     chardet, guess_json_utf, get_encoding_from_headers
 
 

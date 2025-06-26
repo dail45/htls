@@ -7,10 +7,10 @@ from json import dumps
 
 import idna
 
-from tls_client_cffi.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict, AuthBase, default_hooks
-from tls_client_cffi.client.exceptions import MissingSchema, InvalidURL, InvalidJSONError
-from tls_client_cffi.client.request import Request
-from tls_client_cffi.client.utils import _copy_cookie_jar
+from htls.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict, AuthBase, default_hooks
+from htls.client.exceptions import MissingSchema, InvalidURL, InvalidJSONError
+from htls.client.request import Request
+from htls.client.utils import _copy_cookie_jar
 
 
 class PreparedRequest:

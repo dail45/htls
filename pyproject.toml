@@ -1,5 +1,5 @@
 [project]
-name = "tls-client-cffi"
+name = "htls"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -14,4 +14,4 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
-"tls_client_cffi" = ["libs/*"]
+"htls" = ["libs/*"]
