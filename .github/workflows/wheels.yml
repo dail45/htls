@@ -29,7 +29,6 @@ jobs:
       - name: Build wheels
         env:
           CIBW_BEFORE_BUILD: "python build.py"
-          CIBW_SKIP: "pp*"  # если musl не нужен
           CIBW_BUILD_VERBOSITY: 1
         run: |
           python -m cibuildwheel --output-dir dist
