@@ -6,7 +6,7 @@ from typing import Any, Callable
 from http.cookiejar import CookieJar
 from urllib.parse import urlparse, urljoin
 
-from htls.cffi import CustomTLSClient
+from htls.cffi import CustomTLSClient, destroy_session
 from htls.client.request import Request
 from htls.cffi.funcs import request as do_tls_request
 from htls.client.prepared_request import PreparedRequest
@@ -55,6 +55,21 @@ class Session:
 
         self.cookies = CookieJar()
         self.max_redirects = max_redirects
+        self._memory_allocated = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self.close()
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        if self._memory_allocated:
+            destroy_session(self.session_id)
+            self._memory_allocated = False
 
     def rebuild_method(self, prepared_request, response):
         """
@@ -199,12 +214,14 @@ class Session:
                 yield resp
 
     def send(self, prep: PreparedRequest):
+        self._memory_allocated = True
         prep = dispatch_hook("request", prep.hooks, prep)
 
         params = {}
         session_params = dict(self.__dict__)
         session_params.pop("cookies", None)
         session_params.pop("max_redirects", None)
+        session_params.pop("_memory_allocated", None)
         params.update(session_params)
         params.update(prep.tls_params)
         params.update({
