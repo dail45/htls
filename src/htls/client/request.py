@@ -1,4 +1,7 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any, Callable, Sequence
+
+if TYPE_CHECKING:
+    from htls import AuthBase
 
 
 class Request:
@@ -10,10 +13,10 @@ class Request:
             data: Any | None = None,
             headers: dict[str, str] = None,
             cookies: dict[str, str] = None,
-            auth=None,  # ?
+            auth: "AuthBase" = None,
             timeout: float = None,
             allow_redirects: bool = True,
-            hooks=None,  # ?
+            hooks: dict[str, Callable | Sequence[Callable]] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
@@ -27,26 +30,6 @@ class Request:
             stream_output_eof_symbol: str | None = None,
             stream_output_path: str | None = None,
     ):
-        # self.follow_redirects = follow_redirects
-        # self.force_http1 = force_http1
-        # self.header_order = header_order
-        # self.headers = headers
-        # self.insecure_skip_verify = insecure_skip_verify
-        # self.is_byte_request = is_byte_request
-        # self.is_byte_response = is_byte_response
-        # self.is_rotating_proxy = is_rotating_proxy
-        # self.proxy_url = proxy_url
-        # self.request_body = request_body
-        # self.request_cookies = request_cookies
-        # self.request_host_override = request_host_override
-        # self.request_method = request_method
-        # self.request_url = request_url
-        # self.server_name_overwrite = server_name_overwrite
-        # self.stream_output_block_size = stream_output_block_size
-        # self.stream_output_eof_symbol = stream_output_eof_symbol
-        # self.stream_output_path = stream_output_path
-        # self.timeout_milliseconds = timeout_milliseconds
-        # self.timeout_seconds = timeout_seconds
         self.method = method
         self.url = url
         self.params = params

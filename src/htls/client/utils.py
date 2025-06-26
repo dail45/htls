@@ -1,16 +1,21 @@
-import codecs
 import copy
+import codecs
 import importlib
-from http.client import HTTPMessage
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse, urlunparse, quote
+from http.client import HTTPMessage
 from http.cookiejar import CookieJar, Cookie
+from urllib.parse import urlparse, urlunparse, quote
 
-from htls.client.exceptions import InvalidURL
 from htls.client import CaseInsensitiveDict
+from htls.client.exceptions import InvalidURL
 
 if TYPE_CHECKING:
     from htls.client import PreparedRequest
+
+try:
+    import orjson as complexjson
+except ImportError:
+    import json as complexjson
 
 
 def unquote_unreserved(uri):

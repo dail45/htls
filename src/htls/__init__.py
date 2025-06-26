@@ -1,2 +1,2 @@
 from .base_exception import TLSClientException
-from .cffi import *
+from .client import *

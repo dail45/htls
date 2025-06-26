@@ -1,16 +1,14 @@
-import urllib.request
 from copy import deepcopy
 from http.cookiejar import CookieJar, Cookie
 from typing import Mapping, Callable, Sequence
-from urllib.parse import urlparse, urlencode, urlunparse, quote
-from json import dumps
+from urllib.parse import urlparse, urlencode, urlunparse
 
 import idna
 
-from htls.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict, AuthBase, default_hooks
-from htls.client.exceptions import MissingSchema, InvalidURL, InvalidJSONError
 from htls.client.request import Request
-from htls.client.utils import _copy_cookie_jar
+from htls.client.utils import _copy_cookie_jar, complexjson
+from htls.client.exceptions import MissingSchema, InvalidURL, InvalidJSONError
+from htls.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict, AuthBase, default_hooks
 
 
 class PreparedRequest:
@@ -202,7 +200,7 @@ class PreparedRequest:
             content_type = "application/json"
 
             try:
-                body = dumps(json, allow_nan=False)
+                body = complexjson.dumps(json, allow_nan=False)
             except ValueError as ve:
                 raise InvalidJSONError(ve)
 
@@ -269,7 +267,7 @@ class PreparedRequest:
             # Recompute Content-Length
             self.prepare_content_length(self.body)
 
-    def prepare_hooks(self, hooks: dict[str, Callable]):
+    def prepare_hooks(self, hooks: dict[str, Callable | Sequence[Callable]]):
         """
         this method was partially copied from requests library
         Prepares the given hooks.

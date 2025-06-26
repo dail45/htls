@@ -1,5 +1,5 @@
-from typing import MutableMapping, Mapping
 from collections import OrderedDict
+from typing import MutableMapping, Mapping
 
 
 class CaseInsensitiveDict(MutableMapping):

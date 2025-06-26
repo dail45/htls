@@ -1,18 +1,18 @@
-import base64
 import time
 import uuid
+import base64
 from datetime import timedelta
-from http.cookiejar import CookieJar
 from typing import Any, Callable
+from http.cookiejar import CookieJar
 from urllib.parse import urlparse, urljoin
 
-from htls import CustomTLSClient
-from htls.cffi.objects.request import TransportOptions, Request as TLSRequest
+from htls.cffi import CustomTLSClient
+from htls.client.request import Request
 from htls.cffi.funcs import request as do_tls_request
+from htls.client.prepared_request import PreparedRequest
+from htls.cffi.objects.request import TransportOptions, Request as TLSRequest
 from htls.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
     AuthBase, dispatch_hook
-from htls.client.prepared_request import PreparedRequest
-from htls.client.request import Request
 
 
 class Session:

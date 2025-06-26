@@ -1,7 +1,5 @@
-from typing import TYPE_CHECKING, Callable, TypeVar
+from typing import Callable, TypeVar
 
-if TYPE_CHECKING:
-    from htls.client import Response
 
 HOOKS = ["request", "response"]
 T = TypeVar("T")
