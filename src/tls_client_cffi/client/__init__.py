@@ -1,3 +1,5 @@
+from .auth import AuthBase
+from .hooks import HOOKS, dispatch_hook, default_hooks
 from .status_codes import codes
 from .exceptions import *
 from .structures import CaseInsensitiveDict

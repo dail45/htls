@@ -1,12 +1,13 @@
 import urllib.request
+from copy import deepcopy
 from http.cookiejar import CookieJar, Cookie
-from typing import Mapping
+from typing import Mapping, Callable, Sequence
 from urllib.parse import urlparse, urlencode, urlunparse, quote
 from json import dumps
 
 import idna
 
-from tls_client_cffi.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict
+from tls_client_cffi.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict, AuthBase, default_hooks
 from tls_client_cffi.client.exceptions import MissingSchema, InvalidURL, InvalidJSONError
 from tls_client_cffi.client.request import Request
 from tls_client_cffi.client.utils import _copy_cookie_jar
@@ -20,6 +21,8 @@ class PreparedRequest:
         self.body = None
         self.tls_params = {}
         self.raw: Request | None = None
+        self.auth: AuthBase | None = None
+        self.hooks: dict[str, list[Callable]] | None = default_hooks()
 
         self._cookies: CookieJar | None = None
 
@@ -34,6 +37,8 @@ class PreparedRequest:
         p._cookies = _copy_cookie_jar(self._cookies)
         p.body = self.body
         p.raw = self.raw
+        p.auth = self.auth
+        p.hooks = deepcopy(self.hooks) if self.hooks is not None else default_hooks()
         p.tls_params = self.tls_params.copy() if self.tls_params is not None else {}
         return p
 
@@ -73,6 +78,9 @@ class PreparedRequest:
         self.prepare_cookies(request.cookies)
         self.prepare_body(request.data, request.json)
         self.prepare_tls_params(request)
+        self.prepare_auth(request.auth)
+
+        self.prepare_hooks(request.hooks)
 
     def prepare_method(self, method):
         # this method was partially copied from requests library
@@ -244,3 +252,45 @@ class PreparedRequest:
             "timeout_milliseconds": 0,
             "timeout_seconds": request.timeout
         })
+
+    def prepare_auth(self, auth: AuthBase):
+        """
+        this method was partially copied from requests library
+        Prepares the given HTTP auth data.
+        """
+
+        if auth:
+            # Allow auth to make its changes.
+            r = auth(self)
+
+            # Update self to reflect the auth changes.
+            self.__dict__.update(r.__dict__)
+
+            # Recompute Content-Length
+            self.prepare_content_length(self.body)
+
+    def prepare_hooks(self, hooks: dict[str, Callable]):
+        """
+        this method was partially copied from requests library
+        Prepares the given hooks.
+        """
+        # hooks can be passed as None to the prepare method and to this
+        # method. To prevent iterating over None, simply use an empty list
+        # if hooks is False-y
+        hooks = hooks or []
+        for event in hooks:
+            self.register_hook(event, hooks[event])
+
+    def register_hook(self, event: str, hook: Callable | Sequence[Callable]):
+        """
+        this method was copied from requests library
+        Properly register a hook.
+        """
+
+        if event not in self.hooks:
+            raise ValueError(f'Unsupported event specified, with event name "{event}"')
+
+        if isinstance(hook, Callable):
+            self.hooks[event].append(hook)
+        elif hasattr(hook, "__iter__"):
+            self.hooks[event].extend(h for h in hook if isinstance(h, Callable))

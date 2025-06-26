@@ -3,13 +3,14 @@ import time
 import uuid
 from datetime import timedelta
 from http.cookiejar import CookieJar
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlparse, urljoin
 
 from tls_client_cffi import CustomTLSClient
 from tls_client_cffi.cffi.objects.request import TransportOptions, Request as TLSRequest
 from tls_client_cffi.cffi.funcs import request as do_tls_request
-from tls_client_cffi.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies
+from tls_client_cffi.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
+    AuthBase, dispatch_hook
 from tls_client_cffi.client.prepared_request import PreparedRequest
 from tls_client_cffi.client.request import Request
 
@@ -198,6 +199,8 @@ class Session:
                 yield resp
 
     def send(self, prep: PreparedRequest):
+        prep = dispatch_hook("request", prep.hooks, prep)
+
         params = {}
         session_params = dict(self.__dict__)
         session_params.pop("cookies", None)
@@ -212,12 +215,19 @@ class Session:
         })
 
         tls_request = TLSRequest(**params)
+
+        start = time.time()
         tls_response = do_tls_request(tls_request)
+        elapsed = time.time() - start
+
         rsp = Response()
         rsp.build_response(prep, tls_response)
+        rsp.elapsed = timedelta(seconds=elapsed)
 
         if rsp._exception:
             return rsp
+
+        rsp = dispatch_hook("response", prep.hooks, rsp)
 
         if rsp.history:
             resp: Response
@@ -258,10 +268,10 @@ class Session:
             data: Any | None = None,
             headers: dict[str, str] = None,
             cookies: dict[str, str] = None,
-            auth=None,
+            auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
-            hooks=None,
+            hooks: dict[str, Callable] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
@@ -284,11 +294,7 @@ class Session:
             return request
 
         prep = self.prepare_request(request)
-
-        start = time.time()
         rsp = self.send(prep)
-        elapsed = time.time() - start
-        rsp.elapsed = timedelta(seconds=elapsed)
 
         return rsp
 
