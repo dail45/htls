@@ -1,1 +1,0 @@
-All files were taken from https://github.com/bogdanfinn/tls-client/releases
