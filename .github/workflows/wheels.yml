@@ -28,7 +28,7 @@ jobs:
 
       - name: Build wheels
         env:
-          CIBW_BEFORE_BUILD: "python build.py"
+          CIBW_BEFORE_ALL: "python build.py"
           CIBW_BUILD_VERBOSITY: 1
         run: |
           python -m cibuildwheel --output-dir dist
