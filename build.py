@@ -27,7 +27,7 @@ def main():
         else:
             keep_keywords.append("amd64")
 
-    libs_dir = os.path.join(os.path.dirname(__file__), "src", "tls_client_cffi", "libs")
+    libs_dir = os.path.join(os.path.dirname(__file__), "src", "htls", "libs")
     for filename in os.listdir(libs_dir):
         if not all(k in filename for k in keep_keywords):
             os.remove(os.path.join(libs_dir, filename))
