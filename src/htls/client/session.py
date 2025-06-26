@@ -298,3 +298,345 @@ class Session:
 
         return rsp
 
+    def get(
+            self,
+            url: str,
+            params: dict[str, str] = None,
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            auth: AuthBase = None,
+            timeout: float = None,
+            allow_redirects: bool = True,
+            hooks: dict[str, Callable] = None,
+            verify: bool = False,
+
+            force_http1: bool = False,
+            header_order: list[str] | None = None,
+            proxy_url: str | None = None,
+            request_host_override: str | None = None,
+            server_name_overwrite: str | None = None,
+
+            stream_output_block_size: int | None = None,
+            stream_output_eof_symbol: str | None = None,
+            stream_output_path: str | None = None,
+
+            return_request: bool = False
+    ):
+        return self.request(
+            method="GET",
+            url=url,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            hooks=hooks,
+            verify=verify,
+            force_http1=force_http1,
+            header_order=header_order,
+            proxy_url=proxy_url,
+            request_host_override=request_host_override,
+            server_name_overwrite=server_name_overwrite,
+            stream_output_block_size=stream_output_block_size,
+            stream_output_eof_symbol=stream_output_eof_symbol,
+            stream_output_path=stream_output_path,
+            return_request=return_request
+        )
+
+    def options(
+            self,
+            url: str,
+            params: dict[str, str] = None,
+            data: Any | None = None,
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            auth: AuthBase = None,
+            timeout: float = None,
+            allow_redirects: bool = True,
+            hooks: dict[str, Callable] = None,
+            verify: bool = False,
+            json: dict | list | None = None,
+
+            force_http1: bool = False,
+            header_order: list[str] | None = None,
+            proxy_url: str | None = None,
+            request_host_override: str | None = None,
+            server_name_overwrite: str | None = None,
+
+            stream_output_block_size: int | None = None,
+            stream_output_eof_symbol: str | None = None,
+            stream_output_path: str | None = None,
+
+            return_request: bool = False
+    ):
+        return self.request(
+            method="OPTIONS",
+            url=url,
+            params=params,
+            data=data,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            hooks=hooks,
+            verify=verify,
+            json=json,
+            force_http1=force_http1,
+            header_order=header_order,
+            proxy_url=proxy_url,
+            request_host_override=request_host_override,
+            server_name_overwrite=server_name_overwrite,
+            stream_output_block_size=stream_output_block_size,
+            stream_output_eof_symbol=stream_output_eof_symbol,
+            stream_output_path=stream_output_path,
+            return_request=return_request
+        )
+
+    def head(
+            self,
+            url: str,
+            params: dict[str, str] = None,
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            auth: AuthBase = None,
+            timeout: float = None,
+            allow_redirects: bool = True,
+            hooks: dict[str, Callable] = None,
+            verify: bool = False,
+
+            force_http1: bool = False,
+            header_order: list[str] | None = None,
+            proxy_url: str | None = None,
+            request_host_override: str | None = None,
+            server_name_overwrite: str | None = None,
+
+            stream_output_block_size: int | None = None,
+            stream_output_eof_symbol: str | None = None,
+            stream_output_path: str | None = None,
+
+            return_request: bool = False
+    ):
+        return self.request(
+            method="HEAD",
+            url=url,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            hooks=hooks,
+            verify=verify,
+            force_http1=force_http1,
+            header_order=header_order,
+            proxy_url=proxy_url,
+            request_host_override=request_host_override,
+            server_name_overwrite=server_name_overwrite,
+            stream_output_block_size=stream_output_block_size,
+            stream_output_eof_symbol=stream_output_eof_symbol,
+            stream_output_path=stream_output_path,
+            return_request=return_request
+        )
+
+    def post(
+            self,
+            url: str,
+            params: dict[str, str] = None,
+            data: Any | None = None,
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            auth: AuthBase = None,
+            timeout: float = None,
+            allow_redirects: bool = True,
+            hooks: dict[str, Callable] = None,
+            verify: bool = False,
+            json: dict | list | None = None,
+
+            force_http1: bool = False,
+            header_order: list[str] | None = None,
+            proxy_url: str | None = None,
+            request_host_override: str | None = None,
+            server_name_overwrite: str | None = None,
+
+            stream_output_block_size: int | None = None,
+            stream_output_eof_symbol: str | None = None,
+            stream_output_path: str | None = None,
+
+            return_request: bool = False
+    ):
+        return self.request(
+            method="POST",
+            url=url,
+            params=params,
+            data=data,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            hooks=hooks,
+            verify=verify,
+            json=json,
+            force_http1=force_http1,
+            header_order=header_order,
+            proxy_url=proxy_url,
+            request_host_override=request_host_override,
+            server_name_overwrite=server_name_overwrite,
+            stream_output_block_size=stream_output_block_size,
+            stream_output_eof_symbol=stream_output_eof_symbol,
+            stream_output_path=stream_output_path,
+            return_request=return_request
+        )
+
+    def put(
+            self,
+            url: str,
+            params: dict[str, str] = None,
+            data: Any | None = None,
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            auth: AuthBase = None,
+            timeout: float = None,
+            allow_redirects: bool = True,
+            hooks: dict[str, Callable] = None,
+            verify: bool = False,
+            json: dict | list | None = None,
+
+            force_http1: bool = False,
+            header_order: list[str] | None = None,
+            proxy_url: str | None = None,
+            request_host_override: str | None = None,
+            server_name_overwrite: str | None = None,
+
+            stream_output_block_size: int | None = None,
+            stream_output_eof_symbol: str | None = None,
+            stream_output_path: str | None = None,
+
+            return_request: bool = False
+    ):
+        return self.request(
+            method="PUT",
+            url=url,
+            params=params,
+            data=data,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            hooks=hooks,
+            verify=verify,
+            json=json,
+            force_http1=force_http1,
+            header_order=header_order,
+            proxy_url=proxy_url,
+            request_host_override=request_host_override,
+            server_name_overwrite=server_name_overwrite,
+            stream_output_block_size=stream_output_block_size,
+            stream_output_eof_symbol=stream_output_eof_symbol,
+            stream_output_path=stream_output_path,
+            return_request=return_request
+        )
+
+    def patch(
+            self,
+            url: str,
+            params: dict[str, str] = None,
+            data: Any | None = None,
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            auth: AuthBase = None,
+            timeout: float = None,
+            allow_redirects: bool = True,
+            hooks: dict[str, Callable] = None,
+            verify: bool = False,
+            json: dict | list | None = None,
+
+            force_http1: bool = False,
+            header_order: list[str] | None = None,
+            proxy_url: str | None = None,
+            request_host_override: str | None = None,
+            server_name_overwrite: str | None = None,
+
+            stream_output_block_size: int | None = None,
+            stream_output_eof_symbol: str | None = None,
+            stream_output_path: str | None = None,
+
+            return_request: bool = False
+    ):
+        return self.request(
+            method="PATCh",
+            url=url,
+            params=params,
+            data=data,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            hooks=hooks,
+            verify=verify,
+            json=json,
+            force_http1=force_http1,
+            header_order=header_order,
+            proxy_url=proxy_url,
+            request_host_override=request_host_override,
+            server_name_overwrite=server_name_overwrite,
+            stream_output_block_size=stream_output_block_size,
+            stream_output_eof_symbol=stream_output_eof_symbol,
+            stream_output_path=stream_output_path,
+            return_request=return_request
+        )
+
+    def delete(
+            self,
+            url: str,
+            params: dict[str, str] = None,
+            data: Any | None = None,
+            headers: dict[str, str] = None,
+            cookies: dict[str, str] = None,
+            auth: AuthBase = None,
+            timeout: float = None,
+            allow_redirects: bool = True,
+            hooks: dict[str, Callable] = None,
+            verify: bool = False,
+            json: dict | list | None = None,
+
+            force_http1: bool = False,
+            header_order: list[str] | None = None,
+            proxy_url: str | None = None,
+            request_host_override: str | None = None,
+            server_name_overwrite: str | None = None,
+
+            stream_output_block_size: int | None = None,
+            stream_output_eof_symbol: str | None = None,
+            stream_output_path: str | None = None,
+
+            return_request: bool = False
+    ):
+        return self.request(
+            method="DELETE",
+            url=url,
+            params=params,
+            data=data,
+            headers=headers,
+            cookies=cookies,
+            auth=auth,
+            timeout=timeout,
+            allow_redirects=allow_redirects,
+            hooks=hooks,
+            verify=verify,
+            json=json,
+            force_http1=force_http1,
+            header_order=header_order,
+            proxy_url=proxy_url,
+            request_host_override=request_host_override,
+            server_name_overwrite=server_name_overwrite,
+            stream_output_block_size=stream_output_block_size,
+            stream_output_eof_symbol=stream_output_eof_symbol,
+            stream_output_path=stream_output_path,
+            return_request=return_request
+        )
+
