@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from . import CustomTLSClient
+from ..enums import *
 
 """
 {
@@ -74,7 +75,7 @@ class Request:
             stream_output_path: str | None = None,
             timeout_milliseconds: int = 0,
             timeout_seconds: int = 0,
-            tls_client_identifier: str = "",
+            tls_client_identifier: ClientIdentifier | str = "",
             with_debug: bool = False,
             with_default_cookie_jar: bool = False,
             without_cookie_jar: bool = False,
