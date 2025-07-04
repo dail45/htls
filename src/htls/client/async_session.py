@@ -1,23 +1,59 @@
 import time
 import base64
 from datetime import timedelta
+from asyncio import Lock
 from typing import Any, Callable, override
 from urllib.parse import urlparse, urljoin
 
+from htls.client import Session
+from htls.cffi import CustomTLSClient, async_destroy_session
 from htls.client.request import Request
 from htls.cffi.funcs import request as do_tls_request
 from htls.client.prepared_request import PreparedRequest
-from htls.cffi.objects.request import Request as TLSRequest
-from htls.client import Session, Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
+from htls.cffi.objects.request import TransportOptions, Request as TLSRequest
+from htls.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
     AuthBase, dispatch_hook
 
 
 class AsyncSession(Session):
+    @override
+    def __init__(
+            self,
+            tls_client_identifier: str = "",
+            custom_tls_client: CustomTLSClient | dict | None = None,
+
+            catch_panics: bool = False,
+            certificate_pinning_hosts: dict | None = None,
+            transport_options: TransportOptions | dict | None = None,
+            default_headers: dict[str, list[str]] | None = None,
+            connect_headers: dict[str, list[str]] | None = None,
+            disable_ipv6: bool = False,
+            disable_ipv4: bool = False,
+            local_address: str | None = None,
+            session_id: str | None = None,
+            with_debug: bool = False,
+            with_default_cookie_jar: bool = False,
+            without_cookie_jar: bool = False,
+            with_random_tls_extension_order: bool = False,
+
+            max_redirects: int = 30
+    ):
+        super().__init__(tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+                         transport_options, default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address,
+                         session_id, with_debug, with_default_cookie_jar, without_cookie_jar,
+                         with_random_tls_extension_order, max_redirects)
+        self._lock = Lock()
+
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        return self.close()
+        await self.aclose()
+
+    async def aclose(self):
+        if self._memory_allocated:
+            await async_destroy_session(self.session_id)
+            self._memory_allocated = False
 
     @override
     async def resolve_redirects(
@@ -116,33 +152,35 @@ class AsyncSession(Session):
                 yield resp
 
     @override
-    async def send(self, prep: PreparedRequest):
-        self._memory_allocated = True
-        prep = dispatch_hook("request", prep.hooks, prep)
+    async def send(self, prep: PreparedRequest) -> Response:
+        async with self._lock:
+            self._memory_allocated = True
+            prep = dispatch_hook("request", prep.hooks, prep)
 
-        params = {}
-        session_params = dict(self.__dict__)
-        session_params.pop("cookies", None)
-        session_params.pop("max_redirects", None)
-        session_params.pop("_memory_allocated", None)
-        params.update(session_params)
-        params.update(prep.tls_params)
-        params.update({
-            "headers": prep.headers,
-            "request_body": base64.b64encode(prep.body).decode("utf-8") if prep.body else None,
-            "request_method": prep.method,
-            "request_url": prep.url
-        })
+            params = {}
+            session_params = dict(self.__dict__)
+            session_params.pop("cookies", None)
+            session_params.pop("max_redirects", None)
+            session_params.pop("_memory_allocated", None)
+            session_params.pop("_lock", None)
+            params.update(session_params)
+            params.update(prep.tls_params)
+            params.update({
+                "headers": prep.headers,
+                "request_body": base64.b64encode(prep.body).decode("utf-8") if prep.body else None,
+                "request_method": prep.method,
+                "request_url": prep.url
+            })
 
-        tls_request = TLSRequest(**params)
+            tls_request = TLSRequest(**params)
 
-        start = time.time()
-        tls_response = do_tls_request(tls_request)
-        elapsed = time.time() - start
+            start = time.time()
+            tls_response = do_tls_request(tls_request)
+            elapsed = time.time() - start
 
-        rsp = Response()
-        rsp.build_response(prep, tls_response)
-        rsp.elapsed = timedelta(seconds=elapsed)
+            rsp = Response()
+            rsp.build_response(prep, tls_response)
+            rsp.elapsed = timedelta(seconds=elapsed)
 
         if rsp._exception:
             return rsp

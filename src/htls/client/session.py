@@ -2,6 +2,7 @@ import time
 import uuid
 import base64
 from datetime import timedelta
+from threading import Lock
 from typing import Any, Callable
 from http.cookiejar import CookieJar
 from urllib.parse import urlparse, urljoin
@@ -56,6 +57,7 @@ class Session:
         self.cookies = CookieJar()
         self.max_redirects = max_redirects
         self._memory_allocated = False
+        self._lock = Lock()
 
     def __enter__(self):
         return self
@@ -213,33 +215,35 @@ class Session:
                 url = self.get_redirect_target(resp)
                 yield resp
 
-    def send(self, prep: PreparedRequest):
-        self._memory_allocated = True
-        prep = dispatch_hook("request", prep.hooks, prep)
+    def send(self, prep: PreparedRequest) -> Response:
+        with self._lock:
+            self._memory_allocated = True
+            prep = dispatch_hook("request", prep.hooks, prep)
 
-        params = {}
-        session_params = dict(self.__dict__)
-        session_params.pop("cookies", None)
-        session_params.pop("max_redirects", None)
-        session_params.pop("_memory_allocated", None)
-        params.update(session_params)
-        params.update(prep.tls_params)
-        params.update({
-            "headers": prep.headers,
-            "request_body": base64.b64encode(prep.body).decode("utf-8") if prep.body else None,
-            "request_method": prep.method,
-            "request_url": prep.url
-        })
+            params = {}
+            session_params = dict(self.__dict__)
+            session_params.pop("cookies", None)
+            session_params.pop("max_redirects", None)
+            session_params.pop("_memory_allocated", None)
+            session_params.pop("_lock", None)
+            params.update(session_params)
+            params.update(prep.tls_params)
+            params.update({
+                "headers": prep.headers,
+                "request_body": base64.b64encode(prep.body).decode("utf-8") if prep.body else None,
+                "request_method": prep.method,
+                "request_url": prep.url
+            })
 
-        tls_request = TLSRequest(**params)
+            tls_request = TLSRequest(**params)
 
-        start = time.time()
-        tls_response = do_tls_request(tls_request)
-        elapsed = time.time() - start
+            start = time.time()
+            tls_response = do_tls_request(tls_request)
+            elapsed = time.time() - start
 
-        rsp = Response()
-        rsp.build_response(prep, tls_response)
-        rsp.elapsed = timedelta(seconds=elapsed)
+            rsp = Response()
+            rsp.build_response(prep, tls_response)
+            rsp.elapsed = timedelta(seconds=elapsed)
 
         if rsp._exception:
             return rsp

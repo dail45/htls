@@ -19,13 +19,13 @@ def request(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
         json: dict | list | None = None,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -51,9 +51,14 @@ def request(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    with Session(tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options, default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug, with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects) as session:
+    with Session(tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
+                 default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
+                 with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order,
+                 max_redirects) as session:
         return session.request(
-            method, url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, verify, json, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite, stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request
+            method, url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks, verify, json,
+            force_http1, header_order, request_host_override, server_name_overwrite,
+            stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request
         )
 
 
@@ -65,12 +70,12 @@ def get(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -96,8 +101,8 @@ def get(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return request("GET", url, params, None, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                   None, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+    return request("GET", url, params, None, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
+                   verify, None, force_http1, header_order, request_host_override, server_name_overwrite,
                    stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
                    tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
                    default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
@@ -113,13 +118,13 @@ def options(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
         json: dict | list | None = None,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -145,8 +150,8 @@ def options(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return request("OPTIONS", url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                   json, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+    return request("OPTIONS", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies,
+                   hooks, verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
                    stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
                    tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
                    default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
@@ -161,12 +166,12 @@ def head(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -192,8 +197,8 @@ def head(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return request("HEAD", url, params, None, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                   None, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+    return request("HEAD", url, params, None, headers, cookies, auth, timeout, allow_redirects, proxies,
+                   hooks, verify, None, force_http1, header_order, request_host_override, server_name_overwrite,
                    stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
                    tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
                    default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
@@ -209,13 +214,13 @@ def post(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
         json: dict | list | None = None,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -241,8 +246,8 @@ def post(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return request("POST", url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                   json, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+    return request("POST", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
+                   verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
                    stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
                    tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
                    default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
@@ -258,13 +263,13 @@ def put(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
         json: dict | list | None = None,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -290,8 +295,8 @@ def put(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return request("PUT", url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                   json, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+    return request("PUT", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
+                   verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
                    stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
                    tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
                    default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
@@ -307,13 +312,13 @@ def patch(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
         json: dict | list | None = None,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -339,8 +344,8 @@ def patch(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return request("PATCH", url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                   json, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+    return request("PATCH", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
+                   verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
                    stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
                    tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
                    default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
@@ -356,13 +361,13 @@ def delete(
         auth: "AuthBase" = None,
         timeout: float = None,
         allow_redirects: bool = True,
+        proxies: dict[str, str] = None,
         hooks: dict[str, Callable | Sequence[Callable]] = None,
         verify: bool = False,
         json: dict | list | None = None,
 
         force_http1: bool = False,
         header_order: list[str] | None = None,
-        proxy_url: str | None = None,
         request_host_override: str | None = None,
         server_name_overwrite: str | None = None,
         stream_output_block_size: int | None = None,
@@ -388,8 +393,8 @@ def delete(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return request("DELETE", url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                   json, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+    return request("DELETE", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
+                   verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
                    stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
                    tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts, transport_options,
                    default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id, with_debug,
