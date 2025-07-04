@@ -8,4 +8,5 @@ from .prepared_request import PreparedRequest
 from .request import Request
 from .response import Response
 from .session import Session
+from .async_session import AsyncSession
 from .api import *

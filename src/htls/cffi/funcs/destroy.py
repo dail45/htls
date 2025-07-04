@@ -1,4 +1,5 @@
 import json
+import asyncio
 
 from ...cffi_loader import destroySession, destroyAll
 from ..objects.go import DestroySessionObject
@@ -13,3 +14,11 @@ def destroy_session(session_id: str) -> DestroySessionObject:
 def destroy_all() -> DestroySessionObject:
     result = destroyAll()
     return DestroySessionObject.from_bytes(result)
+
+
+async def async_destroy_session(session_id: str) -> DestroySessionObject:
+    return await asyncio.get_event_loop().run_in_executor(None, destroySession, session_id)
+
+
+async def async_destroy_all() -> DestroySessionObject:
+    return await asyncio.get_event_loop().run_in_executor(None, destroyAll)
