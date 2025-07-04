@@ -1,16 +1,13 @@
 import time
-import uuid
 import base64
 from datetime import timedelta
 from typing import Any, Callable, override
-from http.cookiejar import CookieJar
 from urllib.parse import urlparse, urljoin
 
-from htls.cffi import CustomTLSClient, destroy_session
 from htls.client.request import Request
 from htls.cffi.funcs import request as do_tls_request
 from htls.client.prepared_request import PreparedRequest
-from htls.cffi.objects.request import TransportOptions, Request as TLSRequest
+from htls.cffi.objects.request import Request as TLSRequest
 from htls.client import Session, Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
     AuthBase, dispatch_hook
 
@@ -80,7 +77,7 @@ class AsyncSession(Session):
             # https://github.com/psf/requests/issues/1084
             if resp.status_code not in (
                     307,  # temporary redirect,
-                    308   # permanent redirect,
+                    308  # permanent redirect,
             ):
                 # https://github.com/psf/requests/issues/3490
                 purged_headers = ("Content-Length", "Content-Type", "Transfer-Encoding")
@@ -184,13 +181,13 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -200,8 +197,8 @@ class AsyncSession(Session):
 
             return_request: bool = False
     ):
-        request = Request(method, url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, verify,
-                          json, force_http1, header_order, proxy_url, request_host_override, server_name_overwrite,
+        request = Request(method, url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, proxies,
+                          verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
                           stream_output_block_size, stream_output_eof_symbol, stream_output_path)
         if return_request:
             return request
@@ -221,12 +218,12 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -245,11 +242,11 @@ class AsyncSession(Session):
             auth=auth,
             timeout=timeout,
             allow_redirects=allow_redirects,
+            proxies=proxies,
             hooks=hooks,
             verify=verify,
             force_http1=force_http1,
             header_order=header_order,
-            proxy_url=proxy_url,
             request_host_override=request_host_override,
             server_name_overwrite=server_name_overwrite,
             stream_output_block_size=stream_output_block_size,
@@ -269,13 +266,13 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -295,12 +292,12 @@ class AsyncSession(Session):
             auth=auth,
             timeout=timeout,
             allow_redirects=allow_redirects,
+            proxies=proxies,
             hooks=hooks,
             verify=verify,
             json=json,
             force_http1=force_http1,
             header_order=header_order,
-            proxy_url=proxy_url,
             request_host_override=request_host_override,
             server_name_overwrite=server_name_overwrite,
             stream_output_block_size=stream_output_block_size,
@@ -319,12 +316,12 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -343,11 +340,11 @@ class AsyncSession(Session):
             auth=auth,
             timeout=timeout,
             allow_redirects=allow_redirects,
+            proxies=proxies,
             hooks=hooks,
             verify=verify,
             force_http1=force_http1,
             header_order=header_order,
-            proxy_url=proxy_url,
             request_host_override=request_host_override,
             server_name_overwrite=server_name_overwrite,
             stream_output_block_size=stream_output_block_size,
@@ -367,13 +364,13 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -393,12 +390,12 @@ class AsyncSession(Session):
             auth=auth,
             timeout=timeout,
             allow_redirects=allow_redirects,
+            proxies=proxies,
             hooks=hooks,
             verify=verify,
             json=json,
             force_http1=force_http1,
             header_order=header_order,
-            proxy_url=proxy_url,
             request_host_override=request_host_override,
             server_name_overwrite=server_name_overwrite,
             stream_output_block_size=stream_output_block_size,
@@ -418,13 +415,13 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -444,12 +441,12 @@ class AsyncSession(Session):
             auth=auth,
             timeout=timeout,
             allow_redirects=allow_redirects,
+            proxies=proxies,
             hooks=hooks,
             verify=verify,
             json=json,
             force_http1=force_http1,
             header_order=header_order,
-            proxy_url=proxy_url,
             request_host_override=request_host_override,
             server_name_overwrite=server_name_overwrite,
             stream_output_block_size=stream_output_block_size,
@@ -469,13 +466,13 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -495,12 +492,12 @@ class AsyncSession(Session):
             auth=auth,
             timeout=timeout,
             allow_redirects=allow_redirects,
+            proxies=proxies,
             hooks=hooks,
             verify=verify,
             json=json,
             force_http1=force_http1,
             header_order=header_order,
-            proxy_url=proxy_url,
             request_host_override=request_host_override,
             server_name_overwrite=server_name_overwrite,
             stream_output_block_size=stream_output_block_size,
@@ -520,13 +517,13 @@ class AsyncSession(Session):
             auth: AuthBase = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -546,12 +543,12 @@ class AsyncSession(Session):
             auth=auth,
             timeout=timeout,
             allow_redirects=allow_redirects,
+            proxies=proxies,
             hooks=hooks,
             verify=verify,
             json=json,
             force_http1=force_http1,
             header_order=header_order,
-            proxy_url=proxy_url,
             request_host_override=request_host_override,
             server_name_overwrite=server_name_overwrite,
             stream_output_block_size=stream_output_block_size,

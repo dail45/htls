@@ -2,6 +2,7 @@ import base64
 import datetime
 from http.cookiejar import CookieJar
 
+from htls.cffi import GoException
 from htls.client.utils import complexjson
 from htls.cffi.objects import Response as TLSResponse
 from htls.client import PreparedRequest, CaseInsensitiveDict, extract_cookies_to_jar, codes, HTTPError, \
@@ -70,8 +71,11 @@ class Response:
     @property
     def ok(self):
         try:
+            self.raise_for_exception()
             self.raise_for_status()
         except HTTPError:
+            return False
+        except GoException:
             return False
         return True
 

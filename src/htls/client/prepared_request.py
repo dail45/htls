@@ -23,6 +23,7 @@ class PreparedRequest:
         self.hooks: dict[str, list[Callable]] | None = default_hooks()
 
         self._cookies: CookieJar | None = None
+        self._scheme: str | None = None
 
     def __repr__(self):
         return f"<PreparedRequest [{self.method}]>"
@@ -33,6 +34,7 @@ class PreparedRequest:
         p.url = self.url
         p.headers = self.headers.copy() if self.headers is not None else CaseInsensitiveDict()
         p._cookies = _copy_cookie_jar(self._cookies)
+        p._scheme = self._scheme
         p.body = self.body
         p.raw = self.raw
         p.auth = self.auth
@@ -79,6 +81,7 @@ class PreparedRequest:
         self.prepare_auth(request.auth)
 
         self.prepare_hooks(request.hooks)
+        self.prepare_proxies(request.proxies)
 
     def prepare_method(self, method):
         # this method was partially copied from requests library
@@ -115,6 +118,7 @@ class PreparedRequest:
                 f"Invalid URL {url!r}: No scheme supplied. "
                 f"Perhaps you meant https://{url}?"
             )
+        self._scheme = scheme
 
         if not host:
             raise InvalidURL(f"Invalid URL {url!r}: No host supplied")
@@ -241,7 +245,6 @@ class PreparedRequest:
             "is_byte_request": True,
             "is_byte_response": True,
             "is_rotating_proxy": False,
-            "proxy_url": request.proxy_url,
             "request_host_override": request.request_host_override,
             "server_name_overwrite": request.server_name_overwrite,
             "stream_output_block_size": request.stream_output_block_size,
@@ -266,6 +269,10 @@ class PreparedRequest:
 
             # Recompute Content-Length
             self.prepare_content_length(self.body)
+
+    def prepare_proxies(self, proxies: dict[str, str] | None):
+        proxies = proxies or {}
+        self.tls_params["proxy_url"] = proxies.get(self._scheme, None)
 
     def prepare_hooks(self, hooks: dict[str, Callable | Sequence[Callable]]):
         """

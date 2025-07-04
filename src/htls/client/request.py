@@ -16,13 +16,13 @@ class Request:
             auth: "AuthBase" = None,
             timeout: float = None,
             allow_redirects: bool = True,
+            proxies: dict[str, str] = None,
             hooks: dict[str, Callable | Sequence[Callable]] = None,
             verify: bool = False,
             json: dict | list | None = None,
 
             force_http1: bool = False,
             header_order: list[str] | None = None,
-            proxy_url: str | None = None,
             request_host_override: str | None = None,
             server_name_overwrite: str | None = None,
 
@@ -39,13 +39,13 @@ class Request:
         self.auth = auth
         self.timeout = timeout
         self.allow_redirects = allow_redirects
+        self.proxies = proxies
         self.hooks = hooks
         self.verify = verify
         self.json = json
 
         self.force_http1 = force_http1
         self.header_order = header_order
-        self.proxy_url = proxy_url
         self.request_host_override = request_host_override
         self.server_name_overwrite = server_name_overwrite
 
