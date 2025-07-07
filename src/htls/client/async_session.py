@@ -11,7 +11,8 @@ from htls.client.request import Request
 from htls.cffi.funcs import request as do_tls_request
 from htls.client.prepared_request import PreparedRequest
 from htls.cffi.objects.request import TransportOptions, Request as TLSRequest
-from htls.client import Response, extract_cookies_to_jar, TooManyRedirects, requote_uri, merge_cookies, \
+from htls.client import Response, extract_cookies_to_jar, TooManyRedirects, \
+    requote_uri, merge_cookies, \
     AuthBase, dispatch_hook
 
 
@@ -38,9 +39,12 @@ class AsyncSession(Session):
 
             max_redirects: int = 30
     ):
-        super().__init__(tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
-                         transport_options, default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address,
-                         session_id, with_debug, with_default_cookie_jar, without_cookie_jar,
+        super().__init__(tls_client_identifier, custom_tls_client, catch_panics,
+                         certificate_pinning_hosts,
+                         transport_options, default_headers, connect_headers,
+                         disable_ipv6, disable_ipv4, local_address,
+                         session_id, with_debug, with_default_cookie_jar,
+                         without_cookie_jar,
                          with_random_tls_extension_order, max_redirects)
         self._lock = Lock()
 
@@ -116,7 +120,8 @@ class AsyncSession(Session):
                     308  # permanent redirect,
             ):
                 # https://github.com/psf/requests/issues/3490
-                purged_headers = ("Content-Length", "Content-Type", "Transfer-Encoding")
+                purged_headers = (
+                "Content-Length", "Content-Type", "Transfer-Encoding")
                 for header in purged_headers:
                     prepared_request.headers.pop(header, None)
                 prepared_request.body = None
@@ -127,7 +132,8 @@ class AsyncSession(Session):
             # Extract any cookies sent on the response to the cookiejar
             # in the new request. Because we've mutated our copied prepared
             # request, use the old one that we haven't yet touched.
-            extract_cookies_to_jar(prepared_request._cookies, req, resp.raw.headers)
+            extract_cookies_to_jar(prepared_request._cookies, req,
+                                   resp.raw.headers)
             merge_cookies(prepared_request._cookies, self.cookies)
             prepared_request.prepare_cookies(prepared_request._cookies)
 
@@ -145,7 +151,8 @@ class AsyncSession(Session):
                     req
                 )
 
-                extract_cookies_to_jar(self.cookies, prepared_request, resp.raw.headers)
+                extract_cookies_to_jar(self.cookies, prepared_request,
+                                       resp.raw.headers)
 
                 # extract redirect url, if any, for the next loop
                 url = self.get_redirect_target(resp)
@@ -167,7 +174,8 @@ class AsyncSession(Session):
             params.update(prep.tls_params)
             params.update({
                 "headers": prep.headers,
-                "request_body": base64.b64encode(prep.body).decode("utf-8") if prep.body else None,
+                "request_body": base64.b64encode(prep.body).decode(
+                    "utf-8") if prep.body else None,
                 "request_method": prep.method,
                 "request_url": prep.url
             })
@@ -235,9 +243,12 @@ class AsyncSession(Session):
 
             return_request: bool = False
     ):
-        request = Request(method, url, params, data, headers, cookies, auth, timeout, allow_redirects, hooks, proxies,
-                          verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path)
+        request = Request(method, url, params, data, headers, cookies, auth,
+                          timeout, allow_redirects, hooks, proxies,
+                          verify, json, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path)
         if return_request:
             return request
 

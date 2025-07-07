@@ -51,16 +51,22 @@ async def arequest(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    async with AsyncSession(tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    async with AsyncSession(tls_client_identifier, custom_tls_client,
+                            catch_panics, certificate_pinning_hosts,
                             transport_options,
-                            default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                            default_headers, connect_headers, disable_ipv6,
+                            disable_ipv4, local_address, session_id,
                             with_debug,
-                            with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order,
+                            with_default_cookie_jar, without_cookie_jar,
+                            with_random_tls_extension_order,
                             max_redirects) as session:
         return await session.request(
-            method, url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks, verify, json,
-            force_http1, header_order, request_host_override, server_name_overwrite,
-            stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request
+            method, url, params, data, headers, cookies, auth, timeout,
+            allow_redirects, proxies, hooks, verify, json,
+            force_http1, header_order, request_host_override,
+            server_name_overwrite,
+            stream_output_block_size, stream_output_eof_symbol,
+            stream_output_path, return_request
         )
 
 
@@ -103,14 +109,20 @@ async def aget(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return await arequest("GET", url, params, None, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
-                          verify, None, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
-                          tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    return await arequest("GET", url, params, None, headers, cookies, auth,
+                          timeout, allow_redirects, proxies, hooks,
+                          verify, None, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path, return_request,
+                          tls_client_identifier, custom_tls_client,
+                          catch_panics, certificate_pinning_hosts,
                           transport_options,
-                          default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                          default_headers, connect_headers, disable_ipv6,
+                          disable_ipv4, local_address, session_id,
                           with_debug,
-                          with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects)
+                          with_default_cookie_jar, without_cookie_jar,
+                          with_random_tls_extension_order, max_redirects)
 
 
 async def aoptions(
@@ -154,14 +166,20 @@ async def aoptions(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return await arequest("OPTIONS", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies,
-                          hooks, verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
-                          tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    return await arequest("OPTIONS", url, params, data, headers, cookies, auth,
+                          timeout, allow_redirects, proxies,
+                          hooks, verify, json, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path, return_request,
+                          tls_client_identifier, custom_tls_client,
+                          catch_panics, certificate_pinning_hosts,
                           transport_options,
-                          default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                          default_headers, connect_headers, disable_ipv6,
+                          disable_ipv4, local_address, session_id,
                           with_debug,
-                          with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects)
+                          with_default_cookie_jar, without_cookie_jar,
+                          with_random_tls_extension_order, max_redirects)
 
 
 async def ahead(
@@ -203,14 +221,20 @@ async def ahead(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return await arequest("HEAD", url, params, None, headers, cookies, auth, timeout, allow_redirects, proxies,
-                          hooks, verify, None, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
-                          tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    return await arequest("HEAD", url, params, None, headers, cookies, auth,
+                          timeout, allow_redirects, proxies,
+                          hooks, verify, None, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path, return_request,
+                          tls_client_identifier, custom_tls_client,
+                          catch_panics, certificate_pinning_hosts,
                           transport_options,
-                          default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                          default_headers, connect_headers, disable_ipv6,
+                          disable_ipv4, local_address, session_id,
                           with_debug,
-                          with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects)
+                          with_default_cookie_jar, without_cookie_jar,
+                          with_random_tls_extension_order, max_redirects)
 
 
 async def apost(
@@ -254,14 +278,20 @@ async def apost(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return await arequest("POST", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
-                          verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
-                          tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    return await arequest("POST", url, params, data, headers, cookies, auth,
+                          timeout, allow_redirects, proxies, hooks,
+                          verify, json, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path, return_request,
+                          tls_client_identifier, custom_tls_client,
+                          catch_panics, certificate_pinning_hosts,
                           transport_options,
-                          default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                          default_headers, connect_headers, disable_ipv6,
+                          disable_ipv4, local_address, session_id,
                           with_debug,
-                          with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects)
+                          with_default_cookie_jar, without_cookie_jar,
+                          with_random_tls_extension_order, max_redirects)
 
 
 async def aput(
@@ -305,14 +335,20 @@ async def aput(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return await arequest("PUT", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
-                          verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
-                          tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    return await arequest("PUT", url, params, data, headers, cookies, auth,
+                          timeout, allow_redirects, proxies, hooks,
+                          verify, json, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path, return_request,
+                          tls_client_identifier, custom_tls_client,
+                          catch_panics, certificate_pinning_hosts,
                           transport_options,
-                          default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                          default_headers, connect_headers, disable_ipv6,
+                          disable_ipv4, local_address, session_id,
                           with_debug,
-                          with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects)
+                          with_default_cookie_jar, without_cookie_jar,
+                          with_random_tls_extension_order, max_redirects)
 
 
 async def apatch(
@@ -356,14 +392,20 @@ async def apatch(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return await arequest("PATCH", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
-                          verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
-                          tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    return await arequest("PATCH", url, params, data, headers, cookies, auth,
+                          timeout, allow_redirects, proxies, hooks,
+                          verify, json, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path, return_request,
+                          tls_client_identifier, custom_tls_client,
+                          catch_panics, certificate_pinning_hosts,
                           transport_options,
-                          default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                          default_headers, connect_headers, disable_ipv6,
+                          disable_ipv4, local_address, session_id,
                           with_debug,
-                          with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects)
+                          with_default_cookie_jar, without_cookie_jar,
+                          with_random_tls_extension_order, max_redirects)
 
 
 async def adelete(
@@ -407,11 +449,17 @@ async def adelete(
         with_random_tls_extension_order: bool = False,
         max_redirects: int = 30
 ):
-    return await arequest("DELETE", url, params, data, headers, cookies, auth, timeout, allow_redirects, proxies, hooks,
-                          verify, json, force_http1, header_order, request_host_override, server_name_overwrite,
-                          stream_output_block_size, stream_output_eof_symbol, stream_output_path, return_request,
-                          tls_client_identifier, custom_tls_client, catch_panics, certificate_pinning_hosts,
+    return await arequest("DELETE", url, params, data, headers, cookies, auth,
+                          timeout, allow_redirects, proxies, hooks,
+                          verify, json, force_http1, header_order,
+                          request_host_override, server_name_overwrite,
+                          stream_output_block_size, stream_output_eof_symbol,
+                          stream_output_path, return_request,
+                          tls_client_identifier, custom_tls_client,
+                          catch_panics, certificate_pinning_hosts,
                           transport_options,
-                          default_headers, connect_headers, disable_ipv6, disable_ipv4, local_address, session_id,
+                          default_headers, connect_headers, disable_ipv6,
+                          disable_ipv4, local_address, session_id,
                           with_debug,
-                          with_default_cookie_jar, without_cookie_jar, with_random_tls_extension_order, max_redirects)
+                          with_default_cookie_jar, without_cookie_jar,
+                          with_random_tls_extension_order, max_redirects)

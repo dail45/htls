@@ -42,6 +42,8 @@ from ..enums import *
   "withRandomTLSExtensionOrder": false
 }
 """
+
+
 class Request:
     def __init__(
             self,
@@ -118,14 +120,57 @@ class Request:
         self.with_random_tls_extension_order = with_random_tls_extension_order
 
     def to_payload(self):
-        data = self.__dict__
-        ctc = data["custom_tls_client"]
-        to = data["transport_options"]
-        if ctc is not None and isinstance(ctc, CustomTLSClient):
-            data["custom_tls_client"] = ctc.to_payload()
-        if to is not None and isinstance(to, TransportOptions):
-            data["custom_tls_client"] = to.to_payload()
-        return data
+        return {
+            "catchPanics": self.catch_panics,
+            "certificatePinningHosts": self.certificate_pinning_hosts,
+            "customTlsClient": (
+                self.custom_tls_client.to_payload()
+                if self.custom_tls_client is not None and
+                   isinstance(self.custom_tls_client, CustomTLSClient)
+                else None
+            ),
+            "transportOptions": (
+                self.transport_options.to_payload()
+                if self.transport_options is not None and
+                   isinstance(self.transport_options, TransportOptions)
+                else None
+            ),
+            "followRedirects": self.follow_redirects,
+            "forceHttp1": self.force_http1,
+            "headerOrder": self.header_order,
+            "headers": self.headers,
+            "insecureSkipVerify": self.insecure_skip_verify,
+            "isByteRequest": self.is_byte_request,
+            "isByteResponse": self.is_byte_response,
+            "isRotatingProxy": self.is_rotating_proxy,
+            "proxyUrl": self.proxy_url,
+            "requestBody": self.request_body,
+            "requestCookies": self.request_cookies,
+            "requestHostOverride": self.request_host_override,
+            "defaultHeaders": self.default_headers,
+            "connectHeaders": self.connect_headers,
+            "requestMethod": self.request_method,
+            "requestUrl": self.request_url,
+            "disableIPV6": self.disable_ipv6,
+            "disableIPV4": self.disable_ipv4,
+            "localAddress": self.local_address,
+            "sessionId": self.session_id,
+            "serverNameOverwrite": self.server_name_overwrite,
+            "streamOutputBlockSize": self.stream_output_block_size,
+            "streamOutputEOFSymbol": self.stream_output_eof_symbol,
+            "streamOutputPath": self.stream_output_path,
+            "timeoutMilliseconds": self.timeout_milliseconds,
+            "timeoutSeconds": self.timeout_seconds,
+            "tlsClientIdentifier": (
+                self.tls_client_identifier
+                if self.tls_client_identifier or self.custom_tls_client
+                else ClientIdentifier.chrome_120
+            ),
+            "withDebug": self.with_debug,
+            "withDefaultCookieJar": self.with_default_cookie_jar,
+            "withoutCookieJar": self.without_cookie_jar,
+            "withRandomTLSExtensionOrder": self.with_random_tls_extension_order
+        }
 
 
 """
@@ -141,18 +186,20 @@ class Request:
   "idleConnTimeout": 0,
 }
 """
+
+
 class TransportOptions:
     def __init__(
-        self,
-        disable_keep_alives: bool = False,
-        disable_compression: bool = False,
-        max_idle_conns: int = 0,
-        max_idle_conns_per_host: int = 0,
-        max_conns_per_host: int = 0,
-        max_response_header_bytes: int = 0,
-        write_buffer_size: int = 0,
-        read_buffer_size: int = 0,
-        idle_conn_timeout: int = 0,
+            self,
+            disable_keep_alives: bool = False,
+            disable_compression: bool = False,
+            max_idle_conns: int = 0,
+            max_idle_conns_per_host: int = 0,
+            max_conns_per_host: int = 0,
+            max_response_header_bytes: int = 0,
+            write_buffer_size: int = 0,
+            read_buffer_size: int = 0,
+            idle_conn_timeout: int = 0,
     ):
         self.disable_keep_alives = disable_keep_alives
         self.disable_compression = disable_compression
@@ -165,4 +212,14 @@ class TransportOptions:
         self.idle_conn_timeout = idle_conn_timeout
 
     def to_payload(self):
-        return self.__dict__
+        return {
+            "disableKeepAlives": self.disable_keep_alives,
+            "disableCompression": self.disable_compression,
+            "maxIdleConns": self.max_idle_conns,
+            "maxIdleConnsPerHost": self.max_conns_per_host,
+            "maxConnsPerHost": self.max_conns_per_host,
+            "maxResponseHeaderBytes": self.max_response_header_bytes,
+            "writeBufferSize": self.write_buffer_size,
+            "readBufferSize": self.read_buffer_size,
+            "idleConnTimeout": self.idle_conn_timeout,
+        }

@@ -1,8 +1,5 @@
-import json
-
-import humps
-
 from . import GoObject
+from ... import complexjson
 from .go_exception import GoException
 
 """
@@ -16,6 +13,8 @@ from .go_exception import GoException
   "cookies": {}
 }
 """
+
+
 class Response(GoObject):
     def __init__(
             self,
@@ -41,9 +40,17 @@ class Response(GoObject):
 
     @classmethod
     def from_bytes(cls, byte_string: bytes):
-        data = json.loads(byte_string)
-        data = {humps.decamelize(k): v for k, v in data.items()}
-        return cls(**data)
+        data = complexjson.loads(byte_string)
+        return cls(
+            id=data.get("id"),
+            session_id=data.get("sessionId", ""),
+            status=data.get("status", 0),
+            target=data.get("target", ""),
+            body=data.get("target", ""),
+            headers=data.get("headers"),
+            cookies=data.get("cookies"),
+            used_protocol=data.get("usedProtocol", "")
+        )
 
     def raise_for_exception(self):
         if self._exception:

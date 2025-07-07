@@ -52,4 +52,3 @@ class Request:
         self.stream_output_block_size = stream_output_block_size
         self.stream_output_eof_symbol = stream_output_eof_symbol
         self.stream_output_path = stream_output_path
-

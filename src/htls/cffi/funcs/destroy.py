@@ -1,13 +1,13 @@
-import json
 import asyncio
 
+from .. import complexjson
 from ...cffi_loader import destroySession, destroyAll
 from ..objects.go import DestroySessionObject
 
 
 def destroy_session(session_id: str) -> DestroySessionObject:
     payload = {"sessionId": session_id}
-    result = destroySession(json.dumps(payload).encode("utf-8"))
+    result = destroySession(complexjson.dumps(payload).encode("utf-8"))
     return DestroySessionObject.from_bytes(result)
 
 

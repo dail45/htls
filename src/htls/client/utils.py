@@ -147,7 +147,8 @@ class MockResponse:
         self._headers.getheaders(name)
 
 
-def extract_cookies_to_jar(jar: "CookieJar", request: "PreparedRequest", headers: dict[str, list[str]] | CaseInsensitiveDict):
+def extract_cookies_to_jar(jar: "CookieJar", request: "PreparedRequest",
+                           headers: dict[str, list[str]] | CaseInsensitiveDict):
     msg = HTTPMessage()
     msg._headers = []
     for header_name, header_values in headers.items():
@@ -177,10 +178,10 @@ def _resolve_char_detection():
 
 chardet = _resolve_char_detection()
 
-
 _null = "\x00".encode("ascii")  # encoding to ASCII for Python 3
 _null2 = _null * 2
 _null3 = _null * 3
+
 
 def guess_json_utf(data):
     """
@@ -237,7 +238,7 @@ def _parse_content_type_header(header):
             index_of_equals = param.find("=")
             if index_of_equals != -1:
                 key = param[:index_of_equals].strip(items_to_strip)
-                value = param[index_of_equals + 1 :].strip(items_to_strip)
+                value = param[index_of_equals + 1:].strip(items_to_strip)
             params_dict[key.lower()] = value
     return content_type, params_dict
 
@@ -368,7 +369,8 @@ def merge_cookies(cookiejar, cookies):
         raise ValueError("You can only merge into CookieJar")
 
     if isinstance(cookies, dict):
-        cookiejar = cookiejar_from_dict(cookies, cookiejar=cookiejar, overwrite=False)
+        cookiejar = cookiejar_from_dict(cookies, cookiejar=cookiejar,
+                                        overwrite=False)
     elif isinstance(cookies, CookieJar):
         try:
             cookiejar.update(cookies)

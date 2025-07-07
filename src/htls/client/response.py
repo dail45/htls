@@ -5,7 +5,8 @@ from http.cookiejar import CookieJar
 from htls.cffi import GoException
 from htls.client.utils import complexjson
 from htls.cffi.objects import Response as TLSResponse
-from htls.client import PreparedRequest, CaseInsensitiveDict, extract_cookies_to_jar, codes, HTTPError, \
+from htls.client import PreparedRequest, CaseInsensitiveDict, \
+    extract_cookies_to_jar, codes, HTTPError, \
     chardet, guess_json_utf, get_encoding_from_headers
 
 
@@ -45,7 +46,8 @@ class Response:
         self.cookies = CookieJar()
         extract_cookies_to_jar(self.cookies, request, response.headers)
 
-        self._content = base64.b64decode(response.body.split(",")[1]) if response.body else None
+        self._content = base64.b64decode(
+            response.body.split(",")[1]) if response.body else None
 
     def __repr__(self):
         if self._exception:
@@ -86,14 +88,14 @@ class Response:
             302,  # found
             303,  # other
             307,  # temporary redirect
-            308   # permanent redirect
+            308  # permanent redirect
         )
 
     @property
     def is_permanent_redirect(self):
         return "location" in self.headers and self.status_code in (
             301,  # moved permanently
-            308   # permanent redirect
+            308  # permanent redirect
         )
 
     @property
@@ -149,7 +151,8 @@ class Response:
             encoding = guess_json_utf(self.content)
             if encoding is not None:
                 try:
-                    return complexjson.loads(self.content.decode(encoding), **kwargs)
+                    return complexjson.loads(self.content.decode(encoding),
+                                             **kwargs)
                 except UnicodeDecodeError:
                     # Wrong UTF codec detected; usually because it's not UTF-8
                     # but some other 8-bit codec.  This is an RFC violation,

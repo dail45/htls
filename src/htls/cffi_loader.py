@@ -31,7 +31,6 @@ else:
         library_arch = "amd64"
     library_ext = "so"
 
-
 request = None
 getCookiesFromSession = None
 addCookiesToSession = None

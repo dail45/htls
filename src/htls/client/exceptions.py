@@ -8,11 +8,14 @@ class InvalidURL(TLSClientException, ValueError):
 class MissingSchema(TLSClientException, ValueError):
     pass
 
+
 class InvalidJSONError(TLSClientException, ValueError):
     pass
 
+
 class HTTPError(TLSClientException):
     pass
+
 
 class TooManyRedirects(TLSClientException):
     pass

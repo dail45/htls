@@ -8,7 +8,8 @@ import idna
 from htls.client.request import Request
 from htls.client.utils import _copy_cookie_jar, complexjson
 from htls.client.exceptions import MissingSchema, InvalidURL, InvalidJSONError
-from htls.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict, AuthBase, default_hooks
+from htls.client import CaseInsensitiveDict, requote_uri, cookiejar_from_dict, \
+    AuthBase, default_hooks
 
 
 class PreparedRequest:
@@ -38,7 +39,8 @@ class PreparedRequest:
         p.body = self.body
         p.raw = self.raw
         p.auth = self.auth
-        p.hooks = deepcopy(self.hooks) if self.hooks is not None else default_hooks()
+        p.hooks = deepcopy(
+            self.hooks) if self.hooks is not None else default_hooks()
         p.tls_params = self.tls_params.copy() if self.tls_params is not None else {}
         return p
 
@@ -293,7 +295,8 @@ class PreparedRequest:
         """
 
         if event not in self.hooks:
-            raise ValueError(f'Unsupported event specified, with event name "{event}"')
+            raise ValueError(
+                f'Unsupported event specified, with event name "{event}"')
 
         if isinstance(hook, Callable):
             self.hooks[event].append(hook)
