@@ -2,7 +2,7 @@ import time
 import base64
 from datetime import timedelta
 from asyncio import Lock
-from typing import Any, Callable, override
+from typing import Any, Callable
 from urllib.parse import urlparse, urljoin
 
 from htls.client import Session
@@ -17,7 +17,6 @@ from htls.client import Response, extract_cookies_to_jar, TooManyRedirects, \
 
 
 class AsyncSession(Session):
-    @override
     def __init__(
             self,
             tls_client_identifier: str = "",
@@ -59,7 +58,6 @@ class AsyncSession(Session):
             await async_destroy_session(self.session_id)
             self._memory_allocated = False
 
-    @override
     async def resolve_redirects(
             self,
             resp: Response,
@@ -158,7 +156,6 @@ class AsyncSession(Session):
                 url = self.get_redirect_target(resp)
                 yield resp
 
-    @override
     async def send(self, prep: PreparedRequest) -> Response:
         async with self._lock:
             self._memory_allocated = True
@@ -215,7 +212,6 @@ class AsyncSession(Session):
 
         return rsp
 
-    @override
     async def request(
             self,
             method: str,
@@ -257,7 +253,6 @@ class AsyncSession(Session):
 
         return rsp
 
-    @override
     async def get(
             self,
             url: str,
@@ -304,7 +299,6 @@ class AsyncSession(Session):
             return_request=return_request
         )
 
-    @override
     async def options(
             self,
             url: str,
@@ -355,7 +349,6 @@ class AsyncSession(Session):
             return_request=return_request
         )
 
-    @override
     async def head(
             self,
             url: str,
@@ -402,7 +395,6 @@ class AsyncSession(Session):
             return_request=return_request
         )
 
-    @override
     async def post(
             self,
             url: str,
@@ -453,7 +445,6 @@ class AsyncSession(Session):
             return_request=return_request
         )
 
-    @override
     async def put(
             self,
             url: str,
@@ -504,7 +495,6 @@ class AsyncSession(Session):
             return_request=return_request
         )
 
-    @override
     async def patch(
             self,
             url: str,
@@ -555,7 +545,6 @@ class AsyncSession(Session):
             return_request=return_request
         )
 
-    @override
     async def delete(
             self,
             url: str,

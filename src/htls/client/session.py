@@ -233,7 +233,7 @@ class Session:
             params.update(session_params)
             params.update(prep.tls_params)
             params.update({
-                "headers": prep.headers,
+                "headers": dict(prep.headers.items()),
                 "request_body": base64.b64encode(prep.body).decode(
                     "utf-8") if prep.body else None,
                 "request_method": prep.method,

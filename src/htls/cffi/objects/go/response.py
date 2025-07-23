@@ -46,7 +46,7 @@ class Response(GoObject):
             session_id=data.get("sessionId", ""),
             status=data.get("status", 0),
             target=data.get("target", ""),
-            body=data.get("target", ""),
+            body=data.get("body", ""),
             headers=data.get("headers"),
             cookies=data.get("cookies"),
             used_protocol=data.get("usedProtocol", "")

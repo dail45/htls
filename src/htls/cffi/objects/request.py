@@ -127,7 +127,7 @@ class Request:
                 self.custom_tls_client.to_payload()
                 if self.custom_tls_client is not None and
                    isinstance(self.custom_tls_client, CustomTLSClient)
-                else None
+                else self.custom_tls_client
             ),
             "transportOptions": (
                 self.transport_options.to_payload()

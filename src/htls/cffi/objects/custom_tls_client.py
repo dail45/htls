@@ -27,7 +27,7 @@ from ..enums import *
 class CustomTLSClient:
     def __init__(
             self,
-            cert_compression_algo: CertCompressionAlgorithm | str = "",
+            cert_compression_algos: list[CertCompressionAlgorithm | str] = "",
             connection_flow: int = 0,
             h2_settings: dict[H2Setting | str, int] | None = None,
             h2_settings_order: list[H2Setting | str] | None = None,
@@ -44,7 +44,7 @@ class CustomTLSClient:
             supported_signature_algorithms: list[str] | None = None,
             supported_versions: list[str] | None = None,
     ):
-        self.cert_compression_algo = cert_compression_algo
+        self.cert_compression_algos = cert_compression_algos
         self.connection_flow = connection_flow
         self.h2_settings = h2_settings
         self.h2_settings_order = h2_settings_order
@@ -63,7 +63,7 @@ class CustomTLSClient:
 
     def to_payload(self):
         return {
-            "certCompressionAlgo": self.cert_compression_algo,
+            "certCompressionAlgos": self.cert_compression_algos,
             "connectionFlow": self.connection_flow,
             "h2Settings": self.h2_settings,
             "h2SettingsOrder": self.h2_settings_order,
