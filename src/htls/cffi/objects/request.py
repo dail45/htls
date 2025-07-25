@@ -138,7 +138,7 @@ class Request:
             "followRedirects": self.follow_redirects,
             "forceHttp1": self.force_http1,
             "headerOrder": self.header_order,
-            "headers": self.headers,
+            "headers": dict(self.headers.items()),
             "insecureSkipVerify": self.insecure_skip_verify,
             "isByteRequest": self.is_byte_request,
             "isByteResponse": self.is_byte_response,
